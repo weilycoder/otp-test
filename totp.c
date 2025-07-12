@@ -8,11 +8,6 @@
 #include "hotp.h"
 
 int main(int argc, char *argv[]) {
-  if ((*(uint16_t *)("\x01\x00")) != 1) {
-    fprintf(stderr, "This program requires a little-endian architecture.\n");
-    return 1;
-  }
-
   if (argc != 2) {
     fprintf(stderr, "Usage: totp <base32_key>\n");
     return 1;

@@ -1,5 +1,3 @@
-// Only for little-endian systems.
-
 #include "sha1.h"
 
 #include <stddef.h>
@@ -28,8 +26,10 @@ static const char *update_sha1(const uint32_t input[16]) {
   static uint32_t w[80];
   memset(w, 0, sizeof(w));
   memcpy(w, input, 16 * sizeof(uint32_t));
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   for (size_t i = 0; i < 16; ++i)
-    w[i] = __builtin_bswap32(w[i]); // Convert to big-endian
+    w[i] = __builtin_bswap32(w[i]);
+#endif
   for (size_t i = 16; i < 80; ++i)
     w[i] = S(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
 
@@ -64,7 +64,11 @@ char *sha1(const char *data, size_t len, char *buf) {
   memcpy(padded, data, len);
   padded[len] = 0x80;
   memset(padded + len + 1, 0, padded_len - len - 1);
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   uint64_t bit_len = __builtin_bswap64(len * 8);
+#else
+  uint64_t bit_len = len * 8;
+#endif
   memcpy(padded + padded_len - 8, &bit_len, 8);
 
   const char *state = update_sha1(NULL); // Initialize SHA-1 state
@@ -75,8 +79,10 @@ char *sha1(const char *data, size_t len, char *buf) {
   free(padded);
 
   memcpy(buf, state, 20);        // Copy the final hash to the output buffer
-  for (size_t i = 0; i < 5; ++i) // Convert to big-endian
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+  for (size_t i = 0; i < 5; ++i)
     ((uint32_t *)buf)[i] = __builtin_bswap32(((const uint32_t *)state)[i]);
+#endif
 
   return buf; // Return the final hash as a string
 }
