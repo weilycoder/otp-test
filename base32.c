@@ -1,5 +1,6 @@
 #include "base32.h"
 
+#include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 

@@ -1,6 +1,7 @@
 #ifndef HMAC_H
 #define HMAC_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 typedef char *(*HashFunction)(const char *data, size_t len, char *output);
