@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *hmac(const char *K, size_t KL, const char *D, size_t DL, HashFunction H, size_t B, size_t L, char *output) {
+char *hmac(const char *K, size_t KL, const char *D, size_t DL, HashFunction H, size_t B, size_t L,
+           char *output) {
   if (KL > B)
     return NULL; // Key is too long, cannot proceed
 

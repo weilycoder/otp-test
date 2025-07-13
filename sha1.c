@@ -78,7 +78,7 @@ char *sha1(const char *data, size_t len, char *buf) {
 
   free(padded);
 
-  memcpy(buf, state, 20);        // Copy the final hash to the output buffer
+  memcpy(buf, state, 20); // Copy the final hash to the output buffer
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   for (size_t i = 0; i < 5; ++i)
     ((uint32_t *)buf)[i] = __builtin_bswap32(((const uint32_t *)state)[i]);
