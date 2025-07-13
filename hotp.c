@@ -13,11 +13,11 @@ static char *hmac_sha1(const char *K, size_t Klen, const char *text, size_t text
 
 static uint32_t truncate(const char *hmac_sha1_result) {
   size_t offset = hmac_sha1_result[SHA1_DIGEST_SIZE - 1] & 0x0F;
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-  return __builtin_bswap32(*(uint32_t *)(hmac_sha1_result + offset)) & 0x7fffffff;
-#else
-  return *(uint32_t *)(hmac_sha1_result + offset) & 0x7fffffff;
-#endif
+  uint32_t value = ((uint32_t)(uint8_t)hmac_sha1_result[offset] << 24) |
+                   ((uint32_t)(uint8_t)hmac_sha1_result[offset + 1] << 16) |
+                   ((uint32_t)(uint8_t)hmac_sha1_result[offset + 2] << 8) |
+                   ((uint32_t)(uint8_t)hmac_sha1_result[offset + 3]);
+  return value & 0x7FFFFFFF;
 }
 
 uint32_t hotp(const char *K, size_t KL, uint64_t C) {
