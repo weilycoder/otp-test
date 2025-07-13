@@ -28,12 +28,10 @@ static uint32_t _otp(const char *K, size_t KL, uint64_t C) {
   C = __builtin_bswap64(C);
 #endif
   char *counter = (char *)&C;
-  hmac_sha1(K, KL, counter, sizeof(C), hmac_result);
+  if (hmac_sha1(K, KL, counter, sizeof(C), hmac_result) == NULL)
+    return HMAC_FAILED;
   return truncate(hmac_result);
 }
-
-const uint32_t MEM_ALLOC_FAILED = 0x80000000U;
-const uint32_t BASE32_DECODE_FAILED = 0x80000001U;
 
 uint32_t otp(const char *K, uint64_t C) {
   size_t KL = strlen(K);
