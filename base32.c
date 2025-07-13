@@ -6,7 +6,7 @@
 
 const char base32_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
-static size_t from_b32code(char c) {
+static uint64_t from_b32code(char c) {
   if (c >= 'A' && c <= 'Z')
     return c - 'A';
   if (c >= 'a' && c <= 'z')
@@ -31,7 +31,7 @@ char *b32encode(const char *input, size_t input_len, char *output) {
   size_t output_len = encode_size(input_len);
   size_t i, j;
   for (i = 0, j = 0; i < input_len;) {
-    size_t buffer = 0, bits = 0;
+    uint64_t buffer = 0, bits = 0;
     for (; i < input_len && bits < 40; i++, bits += 8)
       buffer = (buffer << 8) | (unsigned char)input[i];
     for (; bits >= 5; bits -= 5)
@@ -48,9 +48,9 @@ char *b32encode(const char *input, size_t input_len, char *output) {
 char *b32decode(const char *input, size_t input_len, char *output) {
   size_t i, j;
   for (i = 0, j = 0; i < input_len && input[i] != '=';) {
-    size_t buffer = 0, bits = 0;
+    uint64_t buffer = 0, bits = 0;
     for (; i < input_len && input[i] != '=' && bits < 40; i++, bits += 5) {
-      size_t value = from_b32code(input[i]);
+      uint64_t value = from_b32code(input[i]);
       if (value == 32)
         return NULL; // Invalid character
       buffer = (buffer << 5) | value;
