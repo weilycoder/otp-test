@@ -1,9 +1,11 @@
-#include "hmac.h"
+#include "hotp.h"
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "base32.h"
 #include "hmac.h"
 #include "sha1.h"
 
@@ -20,7 +22,7 @@ static uint32_t truncate(const char *hmac_sha1_result) {
   return value & 0x7FFFFFFF;
 }
 
-uint32_t hotp(const char *K, size_t KL, uint64_t C) {
+static uint32_t _hotp(const char *K, size_t KL, uint64_t C) {
   char hmac_result[SHA1_DIGEST_SIZE];
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   C = __builtin_bswap64(C);
@@ -28,4 +30,22 @@ uint32_t hotp(const char *K, size_t KL, uint64_t C) {
   char *counter = (char *)&C;
   hmac_sha1(K, KL, counter, sizeof(C), hmac_result);
   return truncate(hmac_result);
+}
+
+const uint32_t MEM_ALLOC_FAILED = 0x80000000U;
+const uint32_t BASE32_DECODE_FAILED = 0x80000001U;
+
+uint32_t hotp(const char *K, uint64_t C) {
+  size_t KL = strlen(K);
+  size_t key_size = decode_size(K);
+  char *decoded_key = (char *)malloc(key_size + 1);
+  if (decoded_key == NULL)
+    return MEM_ALLOC_FAILED;
+  if (b32decode(K, KL, decoded_key) == NULL) {
+    free(decoded_key);
+    return BASE32_DECODE_FAILED;
+  }
+  uint32_t result = _hotp(decoded_key, key_size, C);
+  free(decoded_key);
+  return result;
 }
