@@ -1,4 +1,4 @@
-#include "hotp.h"
+#include "otp.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -22,7 +22,7 @@ static uint32_t truncate(const char *hmac_sha1_result) {
   return value & 0x7FFFFFFF;
 }
 
-static uint32_t _hotp(const char *K, size_t KL, uint64_t C) {
+static uint32_t _otp(const char *K, size_t KL, uint64_t C) {
   char hmac_result[SHA1_DIGEST_SIZE];
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   C = __builtin_bswap64(C);
@@ -35,7 +35,7 @@ static uint32_t _hotp(const char *K, size_t KL, uint64_t C) {
 const uint32_t MEM_ALLOC_FAILED = 0x80000000U;
 const uint32_t BASE32_DECODE_FAILED = 0x80000001U;
 
-uint32_t hotp(const char *K, uint64_t C) {
+uint32_t otp(const char *K, uint64_t C) {
   size_t KL = strlen(K);
   size_t key_size = decode_size(K);
   char *decoded_key = (char *)malloc(key_size + 1);
@@ -45,7 +45,7 @@ uint32_t hotp(const char *K, uint64_t C) {
     free(decoded_key);
     return BASE32_DECODE_FAILED;
   }
-  uint32_t result = _hotp(decoded_key, key_size, C);
+  uint32_t result = _otp(decoded_key, key_size, C);
   free(decoded_key);
   return result;
 }
