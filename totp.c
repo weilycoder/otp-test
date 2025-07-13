@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     return free(decoded_key), fprintf(stderr, "Failed to decode base32 key\n"), 1;
 
   uint64_t T = time(NULL) / 30;
-  uint32_t otp = hotp(decoded_key, strlen(decoded_key), T);
+  uint32_t otp = hotp(decoded_key, ds, T);
   printf("TOTP: %06u\n", otp % 1000000);
   return free(decoded_key), 0;
 }
